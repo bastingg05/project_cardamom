@@ -551,6 +551,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
                   src={isMobile ? "/mobile_view/ezgif-frame-001.jpg" : "/frames/ezgif-frame-001.jpg"}
                   alt="Cardamom Pod Thumbnail"
                   fill
+                  sizes="20px"
                   className="object-cover"
                 />
               </div>
