@@ -86,17 +86,23 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
     const img = getNearestLoadedFrame(target);
     if (!img) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
+    const pixelWidth = Math.round(displayWidth * dpr);
+    const pixelHeight = Math.round(displayHeight * dpr);
 
-    if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
-      canvas.width = displayWidth * dpr;
-      canvas.height = displayHeight * dpr;
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+      canvas.width = pixelWidth;
+      canvas.height = pixelHeight;
     }
 
     ctx.save();
     ctx.scale(dpr, dpr);
+
+    // Enable high-fidelity bicubic resampling for maximum sharpness
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     // Clear base
     ctx.fillStyle = "#080B07";
@@ -119,7 +125,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
       drawY = 0;
     }
 
-    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    ctx.drawImage(img, Math.round(drawX), Math.round(drawY), Math.round(drawW), Math.round(drawH));
     ctx.restore();
     renderedFrameRef.current = target;
   }, [getNearestLoadedFrame]);
@@ -276,7 +282,10 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
             <canvas
               ref={canvasRef}
               className="w-full h-full object-cover block"
-              style={{ background: "transparent" }}
+              style={{
+                background: "transparent",
+                imageRendering: "-webkit-optimize-contrast",
+              }}
             />
           </div>
         </motion.div>

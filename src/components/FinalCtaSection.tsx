@@ -20,6 +20,7 @@ export function FinalCtaSection({ onOpenTradeModal }: FinalCtaSectionProps) {
               src="/frames/ezgif-frame-300.jpg"
               alt="Overflowing burlap sack filled with freshly harvested Kerala green cardamom"
               fill
+              quality={95}
               sizes="(max-width: 1024px) 100vw, 500px"
               className="object-cover object-center"
             />

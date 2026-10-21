@@ -107,6 +107,7 @@ export function HeroSection({ onOpenTradeModal }: HeroSectionProps) {
                 alt="Single premium Kerala green cardamom pod floating in forest atmosphere"
                 fill
                 priority
+                quality={95}
                 sizes="(max-width: 768px) 100vw, 460px"
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
               />
