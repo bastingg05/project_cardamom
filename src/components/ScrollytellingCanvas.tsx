@@ -8,9 +8,10 @@ import { QualitySection } from "./QualitySection";
 
 const TOTAL_FRAMES = 300;
 
-function getFramePath(index: number): string {
+function getFramePath(index: number, isMobile: boolean): string {
   const padded = String(index).padStart(3, "0");
-  return `/mobile_view/ezgif-frame-${padded}.jpg`;
+  const folder = isMobile ? "mobile_view" : "frames";
+  return `/${folder}/ezgif-frame-${padded}.jpg`;
 }
 
 interface ScrollytellingCanvasProps {
@@ -25,8 +26,21 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
   const [loadedCount, setLoadedCount] = useState<number>(0);
   const [activeStoryStage, setActiveStoryStage] = useState<number>(0);
   const [showHeroCardamom, setShowHeroCardamom] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES + 1).fill(null));
+  // Monitor viewport size to switch between Desktop (landscape) and Mobile (portrait) views
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768 || (window.innerWidth <= 1024 && window.innerHeight > window.innerWidth);
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const desktopImagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES + 1).fill(null));
+  const mobileImagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES + 1).fill(null));
   const isRenderingRef = useRef<boolean>(false);
   const targetFrameRef = useRef<number>(1);
   const renderedFrameRef = useRef<number>(-1);
@@ -59,7 +73,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
   });
 
   const getNearestLoadedFrame = useCallback((target: number): HTMLImageElement | null => {
-    const images = imagesRef.current;
+    const images = isMobile ? mobileImagesRef.current : desktopImagesRef.current;
     if (images[target]?.complete && images[target]?.naturalWidth) {
       return images[target];
     }
@@ -74,7 +88,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
       }
     }
     return null;
-  }, []);
+  }, [isMobile]);
 
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -110,7 +124,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
 
     const imgRatio = (img.naturalWidth && img.naturalHeight)
       ? (img.naturalWidth / img.naturalHeight)
-      : (1080 / 1920);
+      : (isMobile ? 1080 / 1920 : 1920 / 1080);
     const canvasRatio = displayWidth / displayHeight;
 
     let drawW: number, drawH: number, drawX: number, drawY: number;
@@ -130,7 +144,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
     ctx.drawImage(img, Math.round(drawX), Math.round(drawY), Math.round(drawW), Math.round(drawH));
     ctx.restore();
     renderedFrameRef.current = target;
-  }, [getNearestLoadedFrame]);
+  }, [getNearestLoadedFrame, isMobile]);
 
   const triggerRender = useCallback(() => {
     if (!isRenderingRef.current) {
@@ -174,13 +188,14 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
 
   useEffect(() => {
     let isCancelled = false;
+    const targetImages = isMobile ? mobileImagesRef.current : desktopImagesRef.current;
 
     // Load Frame 1 immediately
     const img1 = new Image();
-    img1.src = getFramePath(1);
+    img1.src = getFramePath(1, isMobile);
     img1.onload = () => {
       if (isCancelled) return;
-      imagesRef.current[1] = img1;
+      targetImages[1] = img1;
       setLoadedCount((prev) => prev + 1);
       triggerRender();
     };
@@ -208,12 +223,19 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
         const frameIdx = loadQueue[queueIdx++];
         activeWorkers++;
 
+        // If already cached, advance
+        if (targetImages[frameIdx]?.complete) {
+          activeWorkers--;
+          launchNext();
+          continue;
+        }
+
         const img = new Image();
-        img.src = getFramePath(frameIdx);
+        img.src = getFramePath(frameIdx, isMobile);
         img.onload = () => {
           activeWorkers--;
           if (!isCancelled) {
-            imagesRef.current[frameIdx] = img;
+            targetImages[frameIdx] = img;
             setLoadedCount((prev) => prev + 1);
             if (Math.abs(targetFrameRef.current - frameIdx) <= 2) {
               triggerRender();
@@ -237,7 +259,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
       isCancelled = true;
       window.removeEventListener("resize", handleResize);
     };
-  }, [triggerRender]);
+  }, [isMobile, triggerRender]);
 
   const scrollToStage = (stageIdx: number) => {
     if (!containerRef.current) return;
@@ -526,7 +548,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
             <div className="w-full md:w-auto flex items-center gap-2 bg-[#1f3829] text-white px-2.5 py-1 rounded-lg font-sans font-bold text-xs shrink-0 border border-[#cee9be]/40 shadow-xs">
               <div className="relative w-5 h-5 rounded overflow-hidden border border-[#cee9be]/30 shrink-0">
                 <NextImage
-                  src="/mobile_view/ezgif-frame-001.jpg"
+                  src={isMobile ? "/mobile_view/ezgif-frame-001.jpg" : "/frames/ezgif-frame-001.jpg"}
                   alt="Cardamom Pod Thumbnail"
                   fill
                   className="object-cover"
