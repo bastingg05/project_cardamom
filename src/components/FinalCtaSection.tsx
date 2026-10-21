@@ -17,7 +17,7 @@ export function FinalCtaSection({ onOpenTradeModal }: FinalCtaSectionProps) {
           {/* Left Column: Visual of Settled Overflowing Jute Sack (Frame 300) */}
           <div className="lg:col-span-5 relative h-80 sm:h-96 lg:h-[580px] w-full">
             <Image
-              src="/frames/ezgif-frame-300.jpg"
+              src="/mobile_view/ezgif-frame-300.jpg"
               alt="Overflowing burlap sack filled with freshly harvested Kerala green cardamom"
               fill
               quality={95}

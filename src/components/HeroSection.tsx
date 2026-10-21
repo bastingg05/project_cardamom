@@ -103,7 +103,7 @@ export function HeroSection({ onOpenTradeModal }: HeroSectionProps) {
             {/* Visual Frame 1 Preview */}
             <div className="absolute inset-0">
               <Image
-                src="/frames/ezgif-frame-001.jpg"
+                src="/mobile_view/ezgif-frame-001.jpg"
                 alt="Single premium Kerala green cardamom pod floating in forest atmosphere"
                 fill
                 priority

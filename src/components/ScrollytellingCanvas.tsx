@@ -10,7 +10,7 @@ const TOTAL_FRAMES = 300;
 
 function getFramePath(index: number): string {
   const padded = String(index).padStart(3, "0");
-  return `/frames/ezgif-frame-${padded}.jpg`;
+  return `/mobile_view/ezgif-frame-${padded}.jpg`;
 }
 
 interface ScrollytellingCanvasProps {
@@ -108,7 +108,9 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
     ctx.fillStyle = "#080B07";
     ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-    const imgRatio = 1920 / 1080;
+    const imgRatio = (img.naturalWidth && img.naturalHeight)
+      ? (img.naturalWidth / img.naturalHeight)
+      : (1080 / 1920);
     const canvasRatio = displayWidth / displayHeight;
 
     let drawW: number, drawH: number, drawX: number, drawY: number;
@@ -275,7 +277,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
           className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
         >
           {/* Architectural Arch Frame behind the subject (matching reference image) */}
-          <div className="absolute right-6 sm:right-16 md:right-28 lg:right-36 top-24 bottom-24 w-[320px] sm:w-[440px] md:w-[540px] lg:w-[620px] arch-card-frame pointer-events-none shadow-2xl z-0" />
+          <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-16 md:right-28 lg:right-36 top-16 sm:top-24 bottom-20 sm:bottom-24 w-[88vw] sm:w-[440px] md:w-[540px] lg:w-[620px] arch-card-frame pointer-events-none shadow-2xl z-0 opacity-40 sm:opacity-100" />
 
           {/* The Scrollytelling Canvas (masked within the arch area) */}
           <div className="relative w-full h-full z-0 flex items-center justify-center">
@@ -524,7 +526,7 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
             <div className="w-full md:w-auto flex items-center gap-2 bg-[#1f3829] text-white px-2.5 py-1 rounded-lg font-sans font-bold text-xs shrink-0 border border-[#cee9be]/40 shadow-xs">
               <div className="relative w-5 h-5 rounded overflow-hidden border border-[#cee9be]/30 shrink-0">
                 <NextImage
-                  src="/frames/ezgif-frame-001.jpg"
+                  src="/mobile_view/ezgif-frame-001.jpg"
                   alt="Cardamom Pod Thumbnail"
                   fill
                   className="object-cover"
@@ -546,8 +548,8 @@ export function ScrollytellingCanvas({ onOpenTradeModal }: ScrollytellingCanvasP
             </p>
 
             {/* Right Stage Selector & Frame Counter (Modern Brand Sans) */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-0.5 bg-white/70 border border-[#cee9be] p-0.5 rounded-lg text-xs font-sans text-[#28574c]">
+            <div className="flex items-center gap-2 max-w-full">
+              <div className="flex items-center gap-0.5 bg-white/70 border border-[#cee9be] p-0.5 rounded-lg text-xs font-sans text-[#28574c] overflow-x-auto max-w-full scrollbar-none">
                 {[
                   { name: "Home", idx: 0 },
                   { name: "Origin", idx: 1 },
